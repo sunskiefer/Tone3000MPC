@@ -1,0 +1,21 @@
+{
+  "name": "Tone3000MPC",
+  "vendor": "L'Cronx",
+  "uid": "T3kM",
+  "version": 100,
+  "so": "tone3000mpc.so",
+  "params": "params.json",
+  "effect": true,
+  "layout": "layout.conf",
+  "title_font": "art/fonts/TitilliumWeb-SemiBold.ttf",
+  "tile": "art/tile.png",
+  "cc": false,
+  "nrpn": false,
+  "custom_build": "build.sh compiles and links the engine; this file feeds gen_vst.py",
+  "defines": {
+    "HAS_DISPLAY_REV": 1,
+    "DISPLAY_REV_NO_UPDATE": 1,
+    "PARAM_TEXT_MAX": 64,
+    "MODULE_SUBDIR": "\"Tone3000MPC\""
+  }
+}

@@ -1,0 +1,1311 @@
+{
+ "name": "Tone3000MPC",
+ "params": [
+  {
+   "key": "view",
+   "name": "View",
+   "options": [
+    "Overview",
+    "Chain",
+    "Browse",
+    "In / Out",
+    "EQ",
+    "Tuner",
+    "Presets",
+    "Setup"
+   ],
+   "default": 0,
+   "refresh_display": true
+  },
+  {
+   "key": "nav_zoom",
+   "name": "Overview",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "nav_prev",
+   "name": "Prev",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "nav_next",
+   "name": "Next",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "go_chain",
+   "name": "Go Chain",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "go_browse",
+   "name": "Go Browse",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "go_inout",
+   "name": "Go In / Out",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "go_eq",
+   "name": "Go EQ",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "go_tuner",
+   "name": "Go Tuner",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "go_presets",
+   "name": "Go Presets",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "go_setup",
+   "name": "Go Setup",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "in_sec",
+   "name": "In Section",
+   "options": [
+    "Overview",
+    "Section"
+   ],
+   "default": 0
+  },
+  {
+   "key": "sel",
+   "name": "Block",
+   "min": 1.0,
+   "max": 8.0,
+   "default": 1.0,
+   "display": "int",
+   "refresh_display": true
+  },
+  {
+   "key": "blk_1",
+   "name": "Block 1",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "blk_2",
+   "name": "Block 2",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "blk_3",
+   "name": "Block 3",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "blk_4",
+   "name": "Block 4",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "blk_5",
+   "name": "Block 5",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "blk_6",
+   "name": "Block 6",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "blk_7",
+   "name": "Block 7",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "blk_8",
+   "name": "Block 8",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "move",
+   "name": "Move",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 0
+  },
+  {
+   "key": "b_bypass",
+   "name": "Bypass",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 0
+  },
+  {
+   "key": "b_level",
+   "name": "Level",
+   "min": -24.0,
+   "max": 24.0,
+   "default": 0.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "b_mix",
+   "name": "Mix",
+   "min": 0.0,
+   "max": 100.0,
+   "default": 100.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "b_clear",
+   "name": "Clear",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "default": 0.0
+  },
+  {
+   "key": "b_model",
+   "name": "Model",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "stepper",
+   "default": 0.0
+  },
+  {
+   "key": "b_model_prev",
+   "name": "Model Prev",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "default": 0.0
+  },
+  {
+   "key": "b_model_next",
+   "name": "Model Next",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "default": 0.0
+  },
+  {
+   "key": "chain_info",
+   "name": "Chain Info",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "in_mode",
+   "name": "Input",
+   "options": [
+    "Left",
+    "Right",
+    "Sum"
+   ],
+   "default": 2
+  },
+  {
+   "key": "in_gain",
+   "name": "In Gain",
+   "min": -24.0,
+   "max": 24.0,
+   "default": 0.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "out_gain",
+   "name": "Out Gain",
+   "min": -24.0,
+   "max": 24.0,
+   "default": 0.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "mix",
+   "name": "Dry/Wet",
+   "min": 0.0,
+   "max": 100.0,
+   "default": 100.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "gate_on",
+   "name": "Gate",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 0
+  },
+  {
+   "key": "gate_thr",
+   "name": "Gate Thr",
+   "min": -90.0,
+   "max": -20.0,
+   "default": -60.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "calib",
+   "name": "Calibrate",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 0
+  },
+  {
+   "key": "calib_ref",
+   "name": "Cal Level",
+   "min": 0.0,
+   "max": 24.0,
+   "default": 12.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "norm",
+   "name": "Normalize",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 1
+  },
+  {
+   "key": "norm_tgt",
+   "name": "Norm Target",
+   "min": -30.0,
+   "max": -6.0,
+   "default": -18.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "quality",
+   "name": "Quality",
+   "options": [
+    "Full",
+    "Lite"
+   ],
+   "default": 0
+  },
+  {
+   "key": "eq_scope",
+   "name": "EQ For",
+   "options": [
+    "Global",
+    "Block Pre",
+    "Block Post"
+   ],
+   "default": 0,
+   "refresh_display": true
+  },
+  {
+   "key": "eq_on",
+   "name": "EQ",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 0
+  },
+  {
+   "key": "eq_low",
+   "name": "Low",
+   "min": -12.0,
+   "max": 12.0,
+   "default": 0.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "eq_mid",
+   "name": "Mid",
+   "min": -12.0,
+   "max": 12.0,
+   "default": 0.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "eq_midf",
+   "name": "Mid Freq",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.5,
+   "dynamic_display": true
+  },
+  {
+   "key": "eq_high",
+   "name": "High",
+   "min": -12.0,
+   "max": 12.0,
+   "default": 0.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "g_hpf",
+   "name": "Low Cut",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "g_lpf",
+   "name": "High Cut",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 1.0,
+   "dynamic_display": true
+  },
+  {
+   "key": "tuner_on",
+   "name": "Tuner",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 0
+  },
+  {
+   "key": "tuner_mute",
+   "name": "Mute",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 0
+  },
+  {
+   "key": "tuner_ref",
+   "name": "A =",
+   "min": 430.0,
+   "max": 450.0,
+   "default": 440.0,
+   "display": "int"
+  },
+  {
+   "key": "tuner_note",
+   "name": "Note",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "tuner_cents",
+   "name": "Cents",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "tuner_hz",
+   "name": "Hz",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "src",
+   "name": "Source",
+   "options": [
+    "Local",
+    "Online"
+   ],
+   "default": 0,
+   "refresh_display": true
+  },
+  {
+   "key": "gear",
+   "name": "Gear",
+   "options": [
+    "All",
+    "Amp + Cab",
+    "Amp Head",
+    "Cabinet",
+    "Pedal",
+    "Outboard",
+    "Spaces",
+    "Experimental"
+   ],
+   "default": 0,
+   "refresh_display": true
+  },
+  {
+   "key": "fmt",
+   "name": "Format",
+   "options": [
+    "All",
+    "NAM",
+    "IR"
+   ],
+   "default": 0,
+   "refresh_display": true
+  },
+  {
+   "key": "sort",
+   "name": "Sort",
+   "options": [
+    "Trending",
+    "Popular",
+    "Newest",
+    "Oldest"
+   ],
+   "default": 0,
+   "refresh_display": true
+  },
+  {
+   "key": "scroll",
+   "name": "Scroll",
+   "min": 0.0,
+   "max": 4000.0,
+   "default": 0.0,
+   "display": "int"
+  },
+  {
+   "key": "res_1",
+   "name": "Row 1",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "res_2",
+   "name": "Row 2",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "res_3",
+   "name": "Row 3",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "res_4",
+   "name": "Row 4",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "res_5",
+   "name": "Row 5",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "res_6",
+   "name": "Row 6",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "res_7",
+   "name": "Row 7",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "res_8",
+   "name": "Row 8",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "pg_prev",
+   "name": "Page Prev",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "default": 0.0
+  },
+  {
+   "key": "pg_next",
+   "name": "Page Next",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "default": 0.0
+  },
+  {
+   "key": "pg_info",
+   "name": "Page",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "del_mode",
+   "name": "Delete",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 0
+  },
+  {
+   "key": "refresh",
+   "name": "Refresh",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "default": 0.0
+  },
+  {
+   "key": "status",
+   "name": "Status",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "tgt",
+   "name": "Target",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "pre_src",
+   "name": "Bank",
+   "options": [
+    "User",
+    "Factory"
+   ],
+   "default": 0,
+   "refresh_display": true
+  },
+  {
+   "key": "pre_scroll",
+   "name": "Scroll",
+   "min": 0.0,
+   "max": 4000.0,
+   "default": 0.0,
+   "display": "int"
+  },
+  {
+   "key": "pre_1",
+   "name": "Preset 1",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "pre_2",
+   "name": "Preset 2",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "pre_3",
+   "name": "Preset 3",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "pre_4",
+   "name": "Preset 4",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "pre_5",
+   "name": "Preset 5",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "pre_6",
+   "name": "Preset 6",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "pre_7",
+   "name": "Preset 7",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "pre_8",
+   "name": "Preset 8",
+   "min": 0.0,
+   "max": 1.0,
+   "display": "string",
+   "type": "slot",
+   "default": 0.0
+  },
+  {
+   "key": "pre_save",
+   "name": "Save New",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "default": 0.0
+  },
+  {
+   "key": "pre_over",
+   "name": "Overwrite",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "default": 0.0
+  },
+  {
+   "key": "pre_del",
+   "name": "Delete",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 0
+  },
+  {
+   "key": "pre_autofill",
+   "name": "Auto Fill",
+   "options": [
+    "Off",
+    "On"
+   ],
+   "default": 1
+  },
+  {
+   "key": "pre_info",
+   "name": "Preset",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "auth_info",
+   "name": "Account",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "auth_code",
+   "name": "Code",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "signin",
+   "name": "Sign In",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "signout",
+   "name": "Sign Out",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "dsp_load",
+   "name": "DSP Load",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "folder",
+   "name": "Folder",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "key_info",
+   "name": "API Key",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "version",
+   "name": "Version",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "tile_chain",
+   "name": "Chain Tile",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "tile_browse",
+   "name": "Browse Tile",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "tile_inout",
+   "name": "In / Out Tile",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "tile_eq",
+   "name": "EQ Tile",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "tile_tuner",
+   "name": "Tuner Tile",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "tile_presets",
+   "name": "Presets Tile",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "tile_setup",
+   "name": "Setup Tile",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "ov_status",
+   "name": "Status",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "ql1",
+   "name": "Q-Link 1",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql2",
+   "name": "Q-Link 2",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql3",
+   "name": "Q-Link 3",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql4",
+   "name": "Q-Link 4",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql5",
+   "name": "Q-Link 5",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql6",
+   "name": "Q-Link 6",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql7",
+   "name": "Q-Link 7",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql8",
+   "name": "Q-Link 8",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql9",
+   "name": "Q-Link 9",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql10",
+   "name": "Q-Link 10",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql11",
+   "name": "Q-Link 11",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql12",
+   "name": "Q-Link 12",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql13",
+   "name": "Q-Link 13",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql14",
+   "name": "Q-Link 14",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql15",
+   "name": "Q-Link 15",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "ql16",
+   "name": "Q-Link 16",
+   "min": 0.0,
+   "max": 1.0,
+   "default": 0.0,
+   "dynamic_name": true,
+   "dynamic_display": true
+  },
+  {
+   "key": "cap_overview",
+   "name": "Caption OVERVIEW",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_prev",
+   "name": "Caption <",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_next",
+   "name": "Caption >",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_clear",
+   "name": "Caption CLEAR",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_mprev",
+   "name": "Caption <",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_mnext",
+   "name": "Caption >",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_pgprev",
+   "name": "Caption < PAGE",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_pgnext",
+   "name": "Caption PAGE >",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_refresh",
+   "name": "Caption REFRESH",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_save",
+   "name": "Caption SAVE NEW",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_over",
+   "name": "Caption OVERWRITE",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_signin",
+   "name": "Caption SIGN IN",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_signout",
+   "name": "Caption SIGN OUT",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_src",
+   "name": "Caption SOURCE",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_gear",
+   "name": "Caption GEAR",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_fmt",
+   "name": "Caption FORMAT",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_sort",
+   "name": "Caption SORT",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_input",
+   "name": "Caption INPUT",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_quality",
+   "name": "Caption QUALITY",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_eqfor",
+   "name": "Caption EQ FOR",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "cap_bank",
+   "name": "Caption BANK",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  }
+ ]
+}
