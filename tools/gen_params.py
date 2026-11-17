@@ -20,7 +20,7 @@ import os
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 VIEWS = [("overview", "Overview"), ("chain", "Chain"), ("browse", "Browse"), ("inout", "In / Out"),
-         ("eq", "EQ"), ("tuner", "Tuner"), ("presets", "Presets"), ("setup", "Setup")]
+         ("eq", "EQ"), ("tuner", "Tuner"), ("presets", "Presets"), ("setup", "Setup"), ("pics", "Pictures")]
 N_BLOCKS = 8          # blocks in the chain
 N_ROWS = 8            # rows of the browse and preset lists
 OFF_ON = ["Off", "On"]
@@ -64,7 +64,7 @@ def integer(key, name, lo, hi, default, **kw):
 opts("view", "View", [v[1] for v in VIEWS], 0, refresh_display=True)
 for k, lbl in (("nav_zoom", "Overview"), ("nav_prev", "Prev"), ("nav_next", "Next")):
     trigger(k, lbl, refresh_display=True)
-for v in VIEWS[1:]:
+for v in VIEWS[1:-1]:          # the Pictures view is appended at the very end (params.lock: never insert)
     trigger("go_" + v[0], "Go " + v[1], refresh_display=True)
 opts("in_sec", "In Section", ["Overview", "Section"], 0)
 
@@ -151,7 +151,7 @@ text("key_info", "API Key")
 text("version", "Version")
 
 # ---- overview tiles ----------------------------------------------------------------------------------------------
-for v in VIEWS[1:]:
+for v in VIEWS[1:-1]:
     text("tile_" + v[0], v[1] + " Tile")
 text("ov_status", "Status")
 
@@ -173,6 +173,7 @@ VIEW_QL = {
     "tuner": ["tuner_ref", "tuner_on", "tuner_mute"],
     "presets": ["pre_scroll", "pre_src", "pre_autofill", "pre_del"],
     "setup": [],
+    "pics": ["sel", "move"],
 }
 
 # ---- captions: constant words the panel shows as live text, so they are drawn large (MPC's own font) ---------------------
@@ -182,6 +183,10 @@ CAPS = {"overview": "OVERVIEW", "prev": "<", "next": ">", "clear": "CLEAR", "mpr
         "quality": "QUALITY", "eqfor": "EQ FOR", "bank": "BANK"}
 for _k, _t in CAPS.items():
     text("cap_" + _k, "Caption " + _t)
+
+# the Pictures page (added after 0.1.1: appended last so no saved project, automation or skin binding moves)
+trigger("go_pics", "Go Pictures", refresh_display=True)
+text("tile_pics", "Pictures Tile")
 
 KEYS = [p["key"] for p in P]
 assert len(KEYS) == len(set(KEYS)), "duplicate key"

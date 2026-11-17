@@ -13,6 +13,7 @@ mkdir -p build/host build/arm
 rm -rf build/skin
 SHADOW_TITLE_FONT="$PWD/art/fonts/TitilliumWeb-SemiBold.ttf" SHADOW_ART="$PWD/build/host/shadow_art" python3 "$MPC_VST/tools/gen_vst.py" vst.json
 python3 tools/knob_art.py "build/skin/$NAME/Plugin Skins"
+python3 tools/panel_art.py "build/skin/$NAME/Plugin Skins"   # dark panel art + the Chain page markers + build/chain_box.h (never moves a control)
 TGT="-target arm-linux-gnueabihf.2.31 -mcpu=cortex_a17"
 COMMON="-O2 -fPIC -fvisibility=hidden -ffunction-sections -fdata-sections -DNDEBUG -w"
 INC="-Isrc -Ibuild -I$MPC_VST/wrapper -Ithird_party/NeuralAmpModelerCore -Ithird_party/NeuralAmpModelerCore/Dependencies/nlohmann -Ithird_party/eigen -Ithird_party/curl-include"
@@ -31,7 +32,8 @@ for f in src/engine.cc $(find third_party/NeuralAmpModelerCore/NAM -name '*.cpp'
 done
 wait
 $ZIG cc $TGT $COMMON -std=gnu11 -Ibuild -c "$MPC_VST/wrapper/vst2_wrap.c" -o build/arm/vst2_wrap.o
+$ZIG cc $TGT $COMMON -std=gnu11 -Isrc -Ibuild -c src/chainpics.c -o build/arm/chainpics.o   # the chain picture strip (C: the DRM overlay code)
 printf '{\n  global: VSTPluginMain;\n  local: *;\n};\n' > build/arm/exports.map
 $ZIG c++ $TGT -shared -fPIC -Wl,--no-undefined -Wl,--version-script=build/arm/exports.map -Wl,--gc-sections -Wl,-s \
-  $OBJS build/arm/vst2_wrap.o -lm -ldl -lpthread -o build/arm/thing4000.so
+  $OBJS build/arm/vst2_wrap.o build/arm/chainpics.o -lm -ldl -lpthread -o build/arm/thing4000.so
 echo "-> build/arm/thing4000.so"

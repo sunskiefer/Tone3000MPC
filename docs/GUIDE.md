@@ -8,11 +8,22 @@ The **overview** has one tile per page; tap a tile to open it. **OVERVIEW** and 
 The 16 Q-Links follow the page you are on; the data wheel scrolls the list or moves the control you touched last.
 
 ### Chain
-Eight block slots (two rows of four). Tap a block to select it. LEVEL, MIX and BYPASS work on the selected block; **CLEAR** empties it;
+Eight block slots (two rows of four). Tap a block to select it (or use the Pictures page). LEVEL, MIX and BYPASS work on the selected block; **CLEAR** empties it;
 **< >** step through the captures in your folder of the right kind. A block is either a **NAM** capture (amp, pedal, outboard) or an **IR**
 (cab, space). Signal runs block 1 to 8.
 
 **Reorder:** select a block, tap **MOVE**, then tap the block to swap with. Only those two tiles change.
+
+### Pictures
+The 8 blocks as 8 big squares, in the order of the chain (two rows of four). Each square shows the picture that goes with the capture loaded in that block.
+Tap a square to select that block; the selected block has a yellow frame and its capture's name shows at the bottom. With **MOVE** on, tapping another square
+swaps it with the selected block (the pictures go with their blocks). A bypassed block is dimmed; a block with a capture but no picture shows its number; an empty block is a dim card.
+
+**Getting a picture:** copy a `.png` or `.jpg` into `THING4000/tones` with the same name as the capture (`Fender-Deluxe.nam` and `Fender-Deluxe.png`), or put an
+`"image": "any-name.jpg"` line in the capture's small `.json`. Any size works: it is shrunk to fit inside its square when the capture loads. Pictures never
+touch the sound: they are read on a separate thread. If you added a picture after loading the capture, load the capture again.
+
+`THING4000/chain/chain.log` is written fresh each time and says whether the picture layer started. `chain/layout.txt` holds the grid's place on the page, and a file called `chain/chain.off` switches the pictures off.
 
 ### Browse
 Lists what is in the plugin's `THING4000/tones` folder: every `.nam` capture and `.wav` IR you copied there. GEAR and FORMAT filter
@@ -43,9 +54,9 @@ DSP load, the data folder and the version are shown.
 
 ## Files
 `THING4000/` next to the plugin holds `tones/` (your captures and IRs, optionally with a small `.json` per file giving `title`, `model`, `gear`, `user`)
-and `presets/`. Updating the plugin keeps this folder.
+`presets/` and `chain/` (the picture layer's log and settings). Updating the plugin keeps this folder.
 
-## Limits in 0.1.0
+## Limits in 0.1.2
 No oversampling, no dual mono, IRs are mono (left channel) and capped at 0.5 s, captures run at 48 kHz internally (the plugin resamples 44.1 <-> 48 kHz
 around the chain). Latency is 96 samples (2.2 ms) plus the convolver block.
 

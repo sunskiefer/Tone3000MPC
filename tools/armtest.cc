@@ -14,6 +14,7 @@
 
 extern "C" {
 #include "engine.h"
+#include "chainpics.h"
 }
 #include "param_ids.h"
 
@@ -56,6 +57,58 @@ static void wait_loaded(int blocks = 4000) {
   }
 }
 
+static void test_pictures(const char* data) {
+  printf("--- chain pictures\n");
+  std::string d = std::string(data) + "/tones/";
+  int w = 0, h = 0;
+  uint8_t* px = cp_decode((d + "a2-amp-test.png").c_str(), &w, &h);
+  CHECK(px && w == 256 && h == 171, "png decodes and shrinks to fit 256 (got %dx%d)", w, h);
+  if (px) {
+    const uint8_t* c = px + ((size_t)(h / 2) * w + w / 2) * 4;
+    CHECK(abs(c[0] - 200) <= 2 && abs(c[1] - 40) <= 2 && abs(c[2] - 40) <= 2 && c[3] == 255, "png centre colour %d,%d,%d,%d", c[0], c[1], c[2], c[3]);
+    cp_free(px);
+  }
+  px = cp_decode((d + "cab-ir-test-2.jpg").c_str(), &w, &h);
+  CHECK(px && w == 256 && h == 192, "jpg decodes and shrinks to fit 256 (got %dx%d)", w, h);
+  if (px) {
+    const uint8_t* c = px + ((size_t)(h / 2) * w + w / 2) * 4;
+    CHECK(abs(c[0] - 40) <= 14 && abs(c[1] - 160) <= 14 && abs(c[2] - 60) <= 14, "jpg centre colour %d,%d,%d", c[0], c[1], c[2]);
+    cp_free(px);
+  }
+  CHECK(cp_decode((d + "corrupt.png").c_str(), &w, &h) == nullptr, "a corrupt picture is refused, not crashed on");
+  CHECK(cp_decode((d + "missing.png").c_str(), &w, &h) == nullptr, "a missing picture is refused");
+  // the strip: block 1 has a red picture and is selected, block 2 used without picture, block 3 bypassed with a picture, rest empty
+  struct cp_inst* c = cp_open(data, 0);
+  int used[8] = {1, 1, 1, 0, 0, 0, 0, 0}, byp[8] = {0, 0, 1, 0, 0, 0, 0, 0};
+  cp_set_state(c, used, byp, 0);
+  std::vector<uint8_t> red(40 * 40 * 4);
+  for (size_t i = 0; i < red.size(); i += 4) { red[i] = 200; red[i + 1] = 40; red[i + 2] = 40; red[i + 3] = 255; }
+  cp_set_picture(c, 0, red.data(), 40, 40);
+  cp_set_picture(c, 2, red.data(), 40, 40);
+  const int GW = 1248, GH = 408, GAP = 8, CW = (GW - 3 * GAP) / 4, CH = (GH - GAP) / 2;
+  std::vector<uint8_t> strip((size_t)GW * GH * 4);
+  int sw = 0, sh = 0;
+  CHECK(cp_render(c, strip.data(), (int)strip.size(), &sw, &sh) == 0 && sw == GW && sh == GH, "grid renders at %dx%d", sw, sh);
+  auto at = [&](int x, int y) { return strip.data() + ((size_t)y * sw + x) * 4; };   // B, G, R, A
+  const uint8_t* ctr = at(CW / 2, CH / 2);
+  CHECK(ctr[2] >= 195 && ctr[1] <= 45 && ctr[0] <= 45 && ctr[3] == 255, "block 1 shows its picture in the middle of its square (%d,%d,%d,%d)", ctr[2], ctr[1], ctr[0], ctr[3]);
+  const uint8_t* fr = at(CW / 2, 1);
+  CHECK(fr[2] > 200 && fr[1] > 150 && fr[0] < 90 && fr[3] > 200, "block 1 is selected: yellow frame (%d,%d,%d,%d)", fr[2], fr[1], fr[0], fr[3]);
+  const uint8_t* b3 = at(2 * (CW + GAP) + CW / 2, CH / 2);
+  CHECK(b3[2] < 120 && b3[2] > 40 && b3[3] == 255, "block 3 is bypassed: its picture is dimmed (%d,%d,%d)", b3[2], b3[1], b3[0]);
+  const uint8_t* e = at(1 * (CW + GAP) + 30, CH + GAP + 30);          // block 6 (row 2, col 2) is empty: a dark card with a light frame, no picture
+  CHECK(e[2] < 70 && e[3] == 255, "block 6 is empty: a dark card, not a picture (%d,%d,%d,%d)", e[2], e[1], e[0], e[3]);
+  const uint8_t* big = at(3 * (CW + GAP) + CW / 2, CH + GAP + CH / 2);
+  (void)big;
+  CHECK(CW >= 300 && CH >= 200, "the squares are big: %dx%d", CW, CH);
+  FILE* f = fopen("/tmp/strip_test.bgra", "wb"); if (f) { fwrite(strip.data(), 1, strip.size(), f); fclose(f); }
+  cp_set_picture(c, 0, nullptr, 0, 0);
+  cp_render(c, strip.data(), (int)strip.size(), &sw, &sh);
+  ctr = at(CW / 2, CH / 2);
+  CHECK(!(ctr[2] >= 195 && ctr[1] <= 45), "clearing the picture draws the block number instead");
+  cp_close(c);
+}
+
 static void test_dsp_units() {
   printf("--- dsp units\n");
   // convolver vs direct convolution
@@ -92,11 +145,12 @@ int main(int argc, char** argv) {
   const char* data = argc > 1 ? argv[1] : "/tmp/t3kdata";
   const char* files = argc > 2 ? argv[2] : "/tmp/t3kfiles";
   test_dsp_units();
+  test_pictures(data);
   printf("--- engine\n");
   E = mpc_engine();
   inst = E->create(data);
   CHECK(inst != nullptr, "create");
-  CHECK(get("version").find("0.1.1") != std::string::npos, "version text: '%s'", get("version").c_str());
+  CHECK(get("version").find("0.1.2") != std::string::npos, "version text: '%s'", get("version").c_str());
   CHECK(get("tile_chain").find("CHAIN") == 0, "overview tile text: '%s'", get("tile_chain").c_str());
 
   // ---- empty chain is a clean pass-through with a fixed delay
@@ -121,6 +175,7 @@ int main(int argc, char** argv) {
   printf("      blk_1 '%s'   blk_2 '%s'\n", get("blk_1").c_str(), get("blk_2").c_str());
   CHECK(get("blk_1").find("NAM") != std::string::npos && get("blk_1").find("...") == std::string::npos, "NAM block loaded");
   CHECK(get("blk_2").find("IR") != std::string::npos && get("blk_2").find("...") == std::string::npos, "IR block loaded");
+  CHECK(get("dbg_pics") == "3", "both blocks took the picture that came with their capture (mask %s)", get("dbg_pics").c_str());
   auto g = run(sine(220, 0.2, 44100));
   double gr = rms(g, 20000, 40000);
   bool finite = true; for (auto v : g) if (v == 32767 || v == -32768) finite = true;
@@ -137,6 +192,7 @@ int main(int argc, char** argv) {
   CHECK(saved.size() < 8000, "state fits the 8192-byte chunk");
   set("state", "T3K1;");
   CHECK(get("blk_1").find("(empty)") != std::string::npos, "empty state clears the chain");
+  CHECK(get("dbg_pics") == "0", "clearing the chain clears the pictures (mask %s)", get("dbg_pics").c_str());
   set("state", saved.c_str()); wait_loaded();
   CHECK(get("blk_2").find("IR") != std::string::npos, "state restores the chain");
 
@@ -147,6 +203,7 @@ int main(int argc, char** argv) {
   CHECK(get("blk_1").find("IR") != std::string::npos && get("blk_2").find("NAM") != std::string::npos, "swap: '%s' / '%s'", get("blk_1").c_str(), get("blk_2").c_str());
   CHECK(get("blk_2_on") == "1" && get("blk_1_on") == "0", "selection follows the moved block");
   CHECK(get("move") == "0", "MOVE disarms after the swap");
+  CHECK(get("dbg_pics") == "3", "pictures stay with their blocks after the swap (mask %s)", get("dbg_pics").c_str());
   wait_loaded();
   auto g3 = run(sine(220, 0.2, 44100));
   CHECK(rms(g3, 20000, 40000) > 0.002, "audio still flows after the swap");
@@ -163,18 +220,44 @@ int main(int argc, char** argv) {
   set("pre_autofill", "1");
   CHECK(get("pre_autofill").find("On") == std::string::npos && get("pre_autofill") != "1", "auto fill online stays off: '%s'", get("pre_autofill").c_str());
   // ---- Q-Links follow the view
-  set("view", "3");
+  set("go_inout", "1");
   CHECK(get("ql1_name") == "In Gain", "Q-Link 1 on In/Out is '%s'", get("ql1_name").c_str());
   setf("ql1", 1.0);
   CHECK(get("in_gain") == "24", "Q-Link 1 turns In Gain to max (%s)", get("in_gain").c_str());
   setf("ql1", 0.5);
   CHECK(get("ql1_display").find("0.0 dB") != std::string::npos || get("ql1_display").find("+0.0") != std::string::npos, "Q-Link 1 display '%s'", get("ql1_display").c_str());
-  set("view", "4");
+  set("go_eq", "1");
   set("eq_scope", "1"); setf("eq_low", 6);
   CHECK(get("eq_low") == "6", "block pre-EQ low stored for the selected block");
   set("eq_scope", "0");
   CHECK(get("eq_low") == "0", "global EQ is separate (%s)", get("eq_low").c_str());
-  set("view", "0");
+  set("nav_zoom", "1");
+
+  // ---- page navigation: one step per tap, and a host write-back of the old page never flips it
+  set("go_chain", "1");
+  set("dbg_navms", "0");
+  set("nav_next", "1");
+  CHECK(get("view") == "2", "next arrow from Chain goes to Browse (view %s)", get("view").c_str());
+  set("dbg_navms", "350");
+  set("nav_next", "1");            // a second event for the same tap, well inside 350 ms
+  CHECK(get("view") == "2", "a repeated arrow event inside 350 ms is ignored (view %s)", get("view").c_str());
+  usleep(400000);
+  set("nav_next", "1");
+  CHECK(get("view") == "3", "the next real tap steps exactly one page (view %s)", get("view").c_str());
+  set("view", "6");
+  CHECK(get("view") == "3", "a host write of an old view value does not flip the page (view %s)", get("view").c_str());
+  set("nav_next", "0");
+  CHECK(get("view") == "3", "the automate-off echo (0) does nothing (view %s)", get("view").c_str());
+  set("dbg_navms", "0");
+  set("go_setup", "1");
+  set("nav_next", "1");
+  CHECK(get("view") == "8", "next arrow from Setup goes to Pictures (view %s)", get("view").c_str());
+  set("nav_next", "1");
+  CHECK(get("view") == "1", "next arrow from Pictures wraps to Chain (view %s)", get("view").c_str());
+  set("nav_prev", "1");
+  CHECK(get("view") == "8", "prev arrow from Chain wraps to Pictures (view %s)", get("view").c_str());
+  set("dbg_navms", "350");
+  set("nav_zoom", "1");
 
   // ---- dry/wet and gate smoke
   setf("mix", 50); setf("gate_on", 1);
@@ -209,7 +292,19 @@ int main(int argc, char** argv) {
   printf("      fifo underruns: %s\n", get("dbg_underruns").c_str());
   CHECK(get("dbg_underruns") == "0", "no output underruns over the whole run");
   printf("      dsp load readout (under qemu, not meaningful): %s\n", get("dsp_load").c_str());
+  {
+    std::string lg;
+    FILE* f = fopen((std::string(data) + "/chain/chain.log").c_str(), "r");
+    if (f) { char b[4096]; size_t n; while ((n = fread(b, 1, sizeof b, f)) > 0) lg.append(b, n); fclose(f); }
+    printf("      chain.log under qemu (no display here):\n%s", lg.c_str());
+    CHECK(lg.find("THING4000 chain pictures starting") != std::string::npos, "the picture strip's thread started and logged");
+    CHECK(lg.find("no DRM card") != std::string::npos, "with no display it says so and carries on");
+    FILE* l = fopen((std::string(data) + "/chain/layout.txt").c_str(), "r");
+    CHECK(l != nullptr, "layout.txt was written with the default place"); if (l) fclose(l);
+  }
+  double t0 = (double)clock() / CLOCKS_PER_SEC;
   E->destroy(inst);
+  CHECK(((double)clock() / CLOCKS_PER_SEC) - t0 < 3.0, "destroy joins the picture thread promptly");
   printf("\n%d checks, %d failed\n", checks, fails);
   return fails ? 1 : 0;
 }

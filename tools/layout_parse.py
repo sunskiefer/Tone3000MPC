@@ -1,7 +1,7 @@
 """Parse layout.conf widget lines into dicts (id, type, geometry, key, label, view). Shared by overlay.py."""
 import re, shlex
 
-VIEWS = ["Overview", "Chain", "Browse", "In-Out", "EQ", "Tuner", "Presets", "Setup"]
+VIEWS = ["Overview", "Chain", "Browse", "In-Out", "EQ", "Tuner", "Presets", "Setup", "Pictures"]
 KINDS = ("knob", "button", "toggle", "readout", "popup", "list", "enum_h", "stepper")
 
 

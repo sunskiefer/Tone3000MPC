@@ -12,7 +12,8 @@
     "EQ",
     "Tuner",
     "Presets",
-    "Setup"
+    "Setup",
+    "Pictures"
    ],
    "default": 0,
    "refresh_display": true
@@ -1301,6 +1302,25 @@
   {
    "key": "cap_bank",
    "name": "Caption BANK",
+   "min": 0.0,
+   "max": 0.0,
+   "display": "string",
+   "type": "readout",
+   "default": 0.0
+  },
+  {
+   "key": "go_pics",
+   "name": "Go Pictures",
+   "min": 0.0,
+   "max": 1.0,
+   "momentary": true,
+   "type": "trigger",
+   "refresh_display": true,
+   "default": 0.0
+  },
+  {
+   "key": "tile_pics",
+   "name": "Pictures Tile",
    "min": 0.0,
    "max": 0.0,
    "display": "string",

@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 #include <deque>
 #include <map>
@@ -24,6 +25,7 @@
 #include "dsp.h"
 extern "C" {
 #include "engine.h"
+#include "chainpics.h"
 }
 #include "net.h"
 #include "param_ids.h"
@@ -33,7 +35,7 @@ using namespace t3k;
 
 namespace {
 
-#define T3K_VERSION "0.1.1"
+#define T3K_VERSION "0.1.2"
 // Online search / download / sign-in is DORMANT: T3K_ONLINE 0 compiles the community API key out and drops every
 // network job, so the plugin only loads captures and IRs the user copied into tones/. Build with -DT3K_ONLINE=1 to wake it.
 #ifndef T3K_ONLINE
@@ -188,6 +190,9 @@ struct Block {
   IrRt* ir = nullptr;
   float ingain = 1, outgain = 1;
   int gen = 0;
+  std::shared_ptr<std::vector<uint8_t>> pic;   // the picture that came with the capture (straight RGBA, shrunk), or none
+  int picw = 0, pich = 0;
+  bool pic_dirty = true;                          // not yet handed to the chain picture strip
 };
 
 struct Entry {
@@ -209,6 +214,8 @@ struct Done {
   int type;
   NamRt* nam;
   IrRt* ir;
+  std::shared_ptr<std::vector<uint8_t>> pic;
+  int picw = 0, pich = 0;
 };
 
 struct S;
@@ -219,6 +226,7 @@ struct S {
   float v[P_COUNT];
   unsigned rev = 1;
   int view = 0, sel = 0;
+  double last_nav = -1e9; int nav_ms = 350;   // the < > arrows: one step per tap, a repeat inside nav_ms is ignored
   bool armed = false;
   Block blk[N_BLOCKS];
   EqPar geq;
@@ -257,6 +265,8 @@ struct S {
   bool signed_in = false;
   int gen_ctr = 1;
   std::atomic<bool> quit{false};
+  struct cp_inst* cp = nullptr;      // the chain picture strip (src/chainpics.c)
+  bool pics_dirty = true;
   volatile bool cancel_dl = false, cancel_auth = false;
   std::thread th;
   Net net;
@@ -270,7 +280,7 @@ struct S {
     fifo.assign(kFifoPrefill, 0.0f);
     memset(dry, 0, sizeof dry);
   }
-  void bump() { rev++; }
+  void bump() { rev++; pics_dirty = true; }
 };
 
 // =================================================================================================================
@@ -474,12 +484,40 @@ static bool build_model(S* s, const std::string& file, int quality, Done& d, std
   return true;
 }
 
+// The picture that came with a capture, if any: the same name with .png / .jpg / .jpeg, or the name a sidecar .json gives in "image".
+// Decoded and shrunk here on the worker (never on the audio thread).
+static void load_picture(S* s, const std::string& file, Done& d) {
+  size_t dot = file.rfind('.');
+  std::string base = dot == std::string::npos ? file : file.substr(0, dot);
+  std::vector<std::string> cand;
+  std::string side = slurp(tones_dir(s) + base + ".json");
+  if (!side.empty()) {
+    try {
+      std::string im = json_str(json::parse(side), "image");
+      if (!im.empty() && im.find('/') == std::string::npos && im.find("..") == std::string::npos) cand.push_back(im);
+    } catch (...) {}
+  }
+  for (const char* ext : {".png", ".jpg", ".jpeg", ".PNG", ".JPG", ".JPEG"}) cand.push_back(base + ext);
+  for (auto& c : cand) {
+    std::string path = tones_dir(s) + c;
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0 || st.st_size <= 0) continue;
+    int w = 0, h = 0;
+    uint8_t* px = cp_decode(path.c_str(), &w, &h);
+    if (!px) continue;
+    d.pic = std::make_shared<std::vector<uint8_t>>(px, px + (size_t)w * h * 4);
+    d.picw = w; d.pich = h;
+    cp_free(px);
+    return;
+  }
+}
+
 static void run_load(S* s, const Job& j) {
   Done d; d.blk = j.a; d.gen = j.b; d.fresh = j.c != 0; d.file = j.s1; d.type = 0; d.nam = nullptr; d.ir = nullptr;
   std::string err;
   int q = (int)s->v[P_QUALITY];
   if (!build_model(s, j.s1, q, d, err)) { set_status(s, "Load failed: " + err); d.type = -1; }
-  else model_label(s, j.s1, d.label);
+  else { model_label(s, j.s1, d.label); load_picture(s, j.s1, d); }
   { std::lock_guard<std::mutex> l(s->mu); s->done.push_back(d); }
   s->has_done = true;
 }
@@ -744,12 +782,29 @@ static void apply_done(S* s) {
       if (b.ir) s->g_ir.push_back(b.ir);
     }
     b.nam = x.nam; b.ir = x.ir; b.type = x.type; b.file = x.file; b.label = x.label;
+    b.pic = x.pic; b.picw = x.picw; b.pich = x.pich; b.pic_dirty = true;
     if (x.fresh && x.ir) b.mix = x.ir->defMix;
     if (x.fresh && x.nam) b.mix = 100;
     s->dirty = true;
     s->bump();
   }
   s->cv.notify_one();
+}
+
+// hands the chain picture strip what it shows: which blocks are in use / bypassed, the selected one, and any new pictures.
+// Cheap: runs only after something changed (bump()). Called under the wrapper's lock, like everything that touches s->blk.
+static void sync_pics(S* s) {
+  if (!s->cp || !s->pics_dirty) return;
+  s->pics_dirty = false;
+  int used[N_BLOCKS], byp[N_BLOCKS];
+  for (int i = 0; i < N_BLOCKS; i++) { used[i] = s->blk[i].type != 0; byp[i] = s->blk[i].bypass ? 1 : 0; }
+  cp_set_state(s->cp, used, byp, s->sel);
+  for (int i = 0; i < N_BLOCKS; i++) {
+    Block& b = s->blk[i];
+    if (!b.pic_dirty) continue;
+    cp_set_picture(s->cp, i, b.pic ? b.pic->data() : nullptr, b.picw, b.pich);
+    b.pic_dirty = false;
+  }
 }
 
 static void refresh_gains(S* s) {
@@ -1166,6 +1221,7 @@ static void set_view(S* s, int v) {
   s->view = v;
   s->v[P_VIEW] = (float)v;
   s->v[P_IN_SEC] = v > 0 ? 1.f : 0.f;
+  cp_set_page(s->cp, v == V_PICS);
   if (v == V_BROWSE) { Job j; j.kind = J_SCAN; post_job(s, j); }
   if (v == V_PRESETS) { Job j; j.kind = J_SCAN; post_job(s, j); }
   s->bump();
@@ -1174,6 +1230,7 @@ static void set_view(S* s, int v) {
 static void tap_block(S* s, int i) {
   if (s->armed && i != s->sel && s->blk[s->sel].type) {
     std::swap(s->blk[s->sel], s->blk[i]);
+    s->blk[s->sel].pic_dirty = s->blk[i].pic_dirty = true;   // the pictures travel with their blocks
     for (int k : {s->sel, i}) {                         // an in-flight load must follow its block
       Block& b = s->blk[k];
       if (b.loading && !b.file.empty()) load_file_into(s, k, b.file, false);
@@ -1266,6 +1323,9 @@ static void tap_row(S* s, int row, bool presets) {
 static void tap_trigger(S* s, int p) {
   if (p == P_NAV_ZOOM) { set_view(s, V_OVERVIEW); return; }
   if (p == P_NAV_PREV || p == P_NAV_NEXT) {
+    double t = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now().time_since_epoch()).count();
+    if (t - s->last_nav < s->nav_ms) return;       // a tap that arrives twice must not jump two pages
+    s->last_nav = t;
     int v2 = s->view <= 0 ? 1 : s->view + (p == P_NAV_NEXT ? 1 : -1);
     if (v2 < 1) v2 = N_VIEWS - 1;
     if (v2 >= N_VIEWS) v2 = 1;
@@ -1273,6 +1333,7 @@ static void tap_trigger(S* s, int p) {
     return;
   }
   if (p >= P_GO_CHAIN && p <= P_GO_SETUP) { set_view(s, 1 + (p - P_GO_CHAIN)); return; }
+  if (p == P_GO_PICS) { set_view(s, V_PICS); return; }
   if (p >= P_BLK_1 && p < P_BLK_1 + N_BLOCKS) { tap_block(s, p - P_BLK_1); return; }
   if (p >= P_RES_1 && p < P_RES_1 + N_ROWS) { tap_row(s, p - P_RES_1, false); return; }
   if (p >= P_PRE_1 && p < P_PRE_1 + N_ROWS) { tap_row(s, p - P_PRE_1, true); return; }
@@ -1402,6 +1463,7 @@ static int text_param(S* s, int p, char* buf, int n) {
     case P_TILE_TUNER: return put(s->v[P_TUNER_ON] > 0.5f ? "TUNER  ON" : "TUNER");
     case P_TILE_PRESETS: return put(s->cur_preset.empty() ? "PRESETS" : trunc("PRESETS  " + s->cur_preset, 26));
     case P_TILE_SETUP: return put(s->signed_in ? "SETUP  SIGNED IN" : "SETUP");
+    case P_TILE_PICS: { int np = 0; for (auto& b : s->blk) if (b.pic) np++; char t[48]; snprintf(t, sizeof t, "PICTURES  %d", np); return put(t); }
     default: return 0;
   }
 }
@@ -1412,13 +1474,14 @@ static bool is_text(int p) {
   switch (p) {
     case P_B_MODEL: case P_CHAIN_INFO: case P_TUNER_NOTE: case P_TUNER_CENTS: case P_TUNER_HZ: case P_PG_INFO: case P_STATUS: case P_TGT:
     case P_PRE_INFO: case P_AUTH_INFO: case P_AUTH_CODE: case P_DSP_LOAD: case P_FOLDER: case P_KEY_INFO: case P_VERSION: case P_OV_STATUS:
-    case P_TILE_CHAIN: case P_TILE_BROWSE: case P_TILE_INOUT: case P_TILE_EQ: case P_TILE_TUNER: case P_TILE_PRESETS: case P_TILE_SETUP: return true;
+    case P_TILE_CHAIN: case P_TILE_BROWSE: case P_TILE_INOUT: case P_TILE_EQ: case P_TILE_TUNER: case P_TILE_PRESETS: case P_TILE_SETUP: case P_TILE_PICS: return true;
     default: return false;
   }
 }
 
 static bool is_trigger(int p) {
   if (p >= P_NAV_ZOOM && p <= P_GO_SETUP) return true;
+  if (p == P_GO_PICS) return true;
   if ((p >= P_BLK_1 && p < P_BLK_1 + N_BLOCKS) || (p >= P_RES_1 && p < P_RES_1 + N_ROWS) || (p >= P_PRE_1 && p < P_PRE_1 + N_ROWS)) return true;
   switch (p) {
     case P_B_CLEAR: case P_B_MODEL_PREV: case P_B_MODEL_NEXT: case P_PG_PREV: case P_PG_NEXT: case P_REFRESH: case P_PRE_SAVE: case P_PRE_OVER:
@@ -1451,6 +1514,7 @@ void* create(const char* dir) {
   scan_local(s);
   scan_presets(s);
   s->th = std::thread(worker_main, s);
+  s->cp = cp_open(s->data.c_str(), 1);
   s->bump();
   return s;
 }
@@ -1464,14 +1528,23 @@ void destroy(void* inst) {
   for (auto& d : s->done) { delete d.nam; delete d.ir; }
   for (auto p : s->g_nam) delete p;
   for (auto p : s->g_ir) delete p;
+  cp_close(s->cp);
   delete s;
 }
 
 void midi(void*, const uint8_t*, int) {}
 
+static void set_param_(S* s, const char* key, const char* val);
 void set_param(void* inst, const char* key, const char* val) {
   S* s = (S*)inst;
+  if (s->cp) cp_touch(s->cp);          // the instance the user is working in is the one whose chain the picture strip shows
+  set_param_(s, key, val);
+  sync_pics(s);
+}
+
+static void set_param_(S* s, const char* key, const char* val) {
   float x = (float)atof(val);
+  if (!strcmp(key, "dbg_navms")) { s->nav_ms = atoi(val); return; }
   if (!strcmp(key, "state")) { apply_state(s, val, false); return; }
   int p = find_key(key);
   if (p < 0) return;
@@ -1482,8 +1555,7 @@ void set_param(void* inst, const char* key, const char* val) {
     s->bump();
     return;
   }
-  if (p == P_VIEW) { set_view(s, (int)lroundf(x)); return; }
-  if (p == P_IN_SEC) return;
+  if (p == P_VIEW || p == P_IN_SEC) return;   // only the page buttons and arrows change the page; a host write-back of the old value must never flip it (tests use go_*)
   if (is_text(p) && !is_trigger(p)) return;
   if (is_trigger(p)) {
     if (x < 0.5f) return;               // the automate-off echo, and a tap arrives as 1
@@ -1496,8 +1568,11 @@ void set_param(void* inst, const char* key, const char* val) {
 
 int get_param(void* inst, const char* key, char* buf, int n) {
   S* s = (S*)inst;
+  sync_pics(s);
+  if (s->cp && !strncmp(key, "blk_", 4)) cp_touch(s->cp);   // the Chain page of this instance is being drawn
   if (!strcmp(key, "display_rev")) { apply_done(s); return snprintf(buf, n, "%u", s->rev); }
   if (!strcmp(key, "dbg_underruns")) return snprintf(buf, n, "%u", s->underruns);
+  if (!strcmp(key, "dbg_pics")) { int m = 0; for (int i = 0; i < N_BLOCKS; i++) if (s->blk[i].pic) m |= 1 << i; return snprintf(buf, n, "%d", m); }
   if (!strcmp(key, "state")) {
     std::string t = serialize(s, false);
     if ((int)t.size() >= n) return 0;

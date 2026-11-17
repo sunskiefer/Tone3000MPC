@@ -10,7 +10,7 @@ prev = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "build/preview")
 ctl = parse(os.path.join(ROOT, "layout.conf"))
 f = ImageFont.truetype(os.path.join(ROOT, "art/fonts/TitilliumWeb-Bold.ttf"), 22)
 os.makedirs(os.path.join(ROOT, "docs/img"), exist_ok=True)
-for v in range(8):
+for v in range(len(VIEWS)):
     name = "page_0.png" if v == 0 else "page_0_mode0-%d.png" % v
     p = os.path.join(prev, name)
     im = Image.open(p).convert("RGB") if os.path.exists(p) else Image.new("RGB", (1280, 628), (14, 14, 14))

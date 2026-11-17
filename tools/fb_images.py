@@ -26,16 +26,16 @@ def shadowed(base, im, xy):
 # 1 hero 1200x630
 b = bg(1200, 630); d = ImageDraw.Draw(b)
 title(d, 50, 40, "THING4000", 92); d.text((54, 150), "NAM amps, pedals & IR cabs on the Akai Force / MPC OS", font=F(bold, 30), fill=(26, 180, 99))
-d.text((54, 200), "Browse the TONE3000 library on the Force. Download only what you play.", font=F(bold, 26), fill=(220, 220, 220))
-shadowed(b, shot(P(1), 700), (460, 300)); shadowed(b, shot(P(0), 520), (40, 330)); d.text((54, 245), "free  ·  L'Cronx  ·  ARMv7 VST2 effect", font=F(bold, 26), fill=(180, 180, 180))
+d.text((54, 200), "A picture for every block of your chain. Your captures, loaded from the Force.", font=F(bold, 26), fill=(220, 220, 220))
+shadowed(b, shot(P(8), 620), (540, 296)); shadowed(b, shot(P(0), 460), (40, 330)); d.text((54, 245), "free  ·  L'Cronx  ·  ARMv7 VST2 effect", font=F(bold, 26), fill=(180, 180, 180))
 b.save(os.path.join(out, "THING4000_1.png"))
 # 2 best bits 1200x900
 b = bg(1200, 900); d = ImageDraw.Draw(b); title(d, 40, 24, "The best bits", 56)
-bits = [(1, "Chain of NAM + IR blocks, tap to MOVE"), (2, "Browse TONE3000 on the Force"), (3, "Calibrated in/out + gate"), (4, "Pre/post/global EQ")]
+bits = [(8, "Big pictures for every block"), (1, "Chain of NAM + IR blocks, tap to MOVE"), (3, "Calibrated in/out + gate"), (4, "Pre/post/global EQ")]
 for i, (v, t) in enumerate(bits):
     x, y = 40 + (i % 2) * 580, 120 + (i // 2) * 390
     b.paste(shot(P(v), 540), (x, y)); d.text((x, y + 300), t, font=F(bold, 30), fill=(255, 255, 255))
-d.text((40, 860), "unlimited presets + 48 factory presets that fill themselves from TONE3000", font=F(bold, 26), fill=(26, 180, 99))
+d.text((40, 860), "unlimited presets + 48 factory presets that fill themselves from your captures", font=F(bold, 26), fill=(26, 180, 99))
 b.save(os.path.join(out, "THING4000_2.png"))
 # perspective
 def persp(im, w, ang):
@@ -52,11 +52,11 @@ for name, size, layout in (("perspective_vertical", (1080, 1350), "v"), ("perspe
     b = bg(*size).convert("RGBA"); d = ImageDraw.Draw(b)
     if layout == "v":
         title(d, 50, 40, "THING4000", 100); d.text((54, 170), "NAM amps, pedals & cabs for the Force", font=F(bold, 36), fill=(26, 180, 99))
-        for i, v in enumerate((1, 2, 3)):
+        for i, v in enumerate((8, 1, 3)):
             p = persp(P(v), 900, 0.07); b.alpha_composite(p, (90 + (i - 1) * 20, 260 + i * 350))
     else:
         title(d, 40, 30, "THING4000", 70); d.text((44, 115), "free · L'Cronx · Force / MPC OS", font=F(bold, 26), fill=(26, 180, 99))
-        for i, v in enumerate((1, 2)):
+        for i, v in enumerate((8, 1)):
             p = persp(P(v), 640, 0.06); b.alpha_composite(p, (30 + i * 560, 190 + i * 70))
     b.convert("RGB").save(os.path.join(out, name + ".png"))
 print(os.listdir(out))

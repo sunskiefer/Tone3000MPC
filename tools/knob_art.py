@@ -14,6 +14,7 @@ import math
 import os
 import sys
 
+import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 FRAMES = 128
@@ -53,12 +54,12 @@ def notched(cx, cy, r, rot):
     return pts
 
 
-def frame(size, face, rim, fr, value):
+def frame(size, face, rim, fr, value, bg=PANEL):
     S = size * SS
     c = S / 2
     r = fr * SS
     ang = -SWEEP / 2 + SWEEP * value
-    im = Image.new("RGB", (S, S), PANEL)
+    im = Image.new("RGB", (S, S), bg)
     d = ImageDraw.Draw(im)
     # scale: 11 ticks, the 1st, 6th and 11th longer
     for j in range(11):
@@ -96,9 +97,17 @@ def build(path, radius):
     size = old.width
     if old.height != size * FRAMES:
         sys.exit("%s: expected %d frames of %d px" % (path, FRAMES, size))
-    strip = Image.new("RGB", (size, size * FRAMES), PANEL)
+    # RGBA: the same knob drawn on black and on white gives its exact alpha, so it sits on any artwork behind the panel
+    # (composited over the old plate colour it is pixel-identical to the approved look).
+    strip = Image.new("RGBA", (size, size * FRAMES), (0, 0, 0, 0))
     for i in range(FRAMES):
-        strip.paste(frame(size, face, rim, fr, i / (FRAMES - 1)), (0, i * size))
+        v = i / (FRAMES - 1)
+        k = np.asarray(frame(size, face, rim, fr, v, (0, 0, 0)), float)
+        w = np.asarray(frame(size, face, rim, fr, v, (255, 255, 255)), float)
+        a = np.clip(1.0 - (w - k).mean(axis=2) / 255.0, 0.0, 1.0)
+        rgb = np.where(a[..., None] > 1e-3, k / np.maximum(a[..., None], 1e-3), 0.0)
+        out = np.dstack([np.clip(rgb, 0, 255), a * 255.0]).round().astype(np.uint8)
+        strip.paste(Image.fromarray(out, "RGBA"), (0, i * size))
     strip.save(path)
 
 

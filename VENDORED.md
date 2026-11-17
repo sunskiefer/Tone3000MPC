@@ -9,6 +9,10 @@ THING4000's own code (`src/`, `tools/`, `layout.conf`, art) is PolyForm Noncomme
 | nlohmann/json 3.12.0 | `third_party/NeuralAmpModelerCore/Dependencies/nlohmann/` | 3.12.0 | MIT, Niels Lohmann | none |
 | Eigen 3.4.0 (+ `unsupported/Eigen/FFT`) | `third_party/eigen/` | 3.4.0 (Debian/Ubuntu `libeigen3-dev`) | MPL 2.0 (built with `EIGEN_MPL2_ONLY`) | none |
 | libcurl headers (types and constants only; the library itself is the Force's own `libcurl.so.4`, loaded with `dlopen`) | `third_party/curl-include/` | Ubuntu `libcurl4-openssl-dev` | curl licence | none |
+| stb_image (PNG / JPEG decoding of the block pictures) | `src/stb_image.h` | v2.30 (single header, as used in the XYZ plugin) | Public domain or MIT, at your choice (Sean Barrett and contributors); text in `third_party/licenses/stb_image-LICENSE.txt` | none; built with `STBI_NO_STDIO`, `STBI_NO_LINEAR`, `STBI_NO_HDR`, `STBI_NO_THREAD_LOCALS` |
+
+`src/chainpics.c` reuses the display-layer method of VADER 0.5.0 and XYZ 0.0.2 (`sunskiefer/VADER`, `sunskiefer/XYZ`; same author, MIT): a thread takes a spare
+hardware overlay plane of the display and draws into it. The drawing, the picture decoding and the page markers are new.
 
 The idea, the API usage, the calibration / normalization rules and the IR handling follow TONE3000's open-source plugin
 (MIT, commit c461f11cdfd5ffe4bb19baff11b9c48190ae8f30, https://github.com/tone-3000/tone3000-plugin). No code of it is copied;
