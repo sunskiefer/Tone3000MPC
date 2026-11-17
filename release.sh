@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 VER="${1:?version, e.g. 0.1.0}"
-MPC_VST="${MPC_VST:-$PWD/third_party/mpc-vst-plugins}"
+MPC_VST="${MPC_VST:-$PWD/third_party/mpc-vst-plugins}"   # must be current open-mpc/mpc-vst-plugins tools plus the L'Cronx quote escape in release.py (0.1.0 was packed that way; check sh -n on install.sh)
 NAME="L'Cronx - VST - Tone3000MPC"
 ./build.sh
 mkdir -p dist/stage

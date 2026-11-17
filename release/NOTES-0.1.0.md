@@ -9,4 +9,4 @@ First release of Tone3000MPC: NAM A2 amps, pedals and IR cabs, with TONE3000 lib
 
 Install: copy the zip to the Force and run install.sh (see docs/GUIDE.md). Licence: PolyForm Noncommercial 1.0.0; bundled third-party code keeps its own licences.
 
-SHA-256 of the zip: 28b60d64a0cb6933cc62b7055d2a07fee13b870a4cbd791744325c8da533714a
+SHA-256 of the zip: 9ca7730bf5210721ece0b47e8f89cf34e42501e7d4bdb855cc97be631c157c22
