@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build Tone3000MPC for MPC OS Gen1 (armv7-a hard-float, glibc <= 2.31). No Docker.
-#   ./build.sh            builds the plugin .so (build/arm/tone3000mpc.so) and the packaged skin folder
+# Build THING4000 for MPC OS Gen1 (armv7-a hard-float, glibc <= 2.31). No Docker.
+#   ./build.sh            builds the plugin .so (build/arm/thing4000.so) and the packaged skin folder
 #   ./build.sh so         only the engine .so (no skin)
 set -euo pipefail
 cd "$(dirname "$0")"
 MPC_VST="${MPC_VST:-$PWD/third_party/mpc-vst-plugins}"
 ZIG="${ZIG:-python3 -m ziglang}"
-NAME="L'Cronx - VST - Tone3000MPC"
+NAME="L'Cronx - VST - THING4000"
 python3 tools/gen_params.py
 mkdir -p build/host build/arm
 [ -x build/host/shadow_art ] || gcc -O2 -w -I"$MPC_VST/tools/vendor/force-shadow/tools" -x c -o build/host/shadow_art "$MPC_VST/tools/shadow_art.c" -lm
@@ -33,5 +33,5 @@ wait
 $ZIG cc $TGT $COMMON -std=gnu11 -Ibuild -c "$MPC_VST/wrapper/vst2_wrap.c" -o build/arm/vst2_wrap.o
 printf '{\n  global: VSTPluginMain;\n  local: *;\n};\n' > build/arm/exports.map
 $ZIG c++ $TGT -shared -fPIC -Wl,--no-undefined -Wl,--version-script=build/arm/exports.map -Wl,--gc-sections -Wl,-s \
-  $OBJS build/arm/vst2_wrap.o -lm -ldl -lpthread -o build/arm/tone3000mpc.so
-echo "-> build/arm/tone3000mpc.so"
+  $OBJS build/arm/vst2_wrap.o -lm -ldl -lpthread -o build/arm/thing4000.so
+echo "-> build/arm/thing4000.so"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The single source of Tone3000MPC's parameter list.
+"""The single source of THING4000's parameter list.
 
 Writes params.json (for mpc-vst-plugins' gen_vst.py) and src/param_ids.h (P_<KEY> index constants, names, ranges,
 option lists and the Q-Link tables the engine needs).
@@ -201,7 +201,7 @@ def nopts(p):
 
 
 def write_params_json():
-    out = {"name": "Tone3000MPC", "params": P}
+    out = {"name": "THING4000", "params": P}
     with open(os.path.join(ROOT, "params.json"), "w") as f:
         json.dump(out, f, indent=1)
         f.write("\n")

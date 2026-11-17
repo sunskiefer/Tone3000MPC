@@ -1,7 +1,7 @@
 # Vendored third-party code
 
 Everything in `third_party/` belongs to its authors and stays under their licences (texts in `third_party/licenses/`).
-Tone3000MPC's own code (`src/`, `tools/`, `layout.conf`, art) is PolyForm Noncommercial 1.0.0 (`LICENSE`).
+THING4000's own code (`src/`, `tools/`, `layout.conf`, art) is PolyForm Noncommercial 1.0.0 (`LICENSE`).
 
 | Code | Where | Version | Licence | Changes |
 |---|---|---|---|---|

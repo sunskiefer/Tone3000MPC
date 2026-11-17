@@ -1,4 +1,4 @@
-// Tone3000MPC's own small DSP pieces: streaming polyphase resampler, FFT partitioned convolver, RBJ biquads,
+// THING4000's own small DSP pieces: streaming polyphase resampler, FFT partitioned convolver, RBJ biquads,
 // noise gate, pitch (tuner) detector and a WAV reader. Nothing here allocates while rendering.
 #pragma once
 #include <math.h>

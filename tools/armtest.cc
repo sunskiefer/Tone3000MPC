@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
   E = mpc_engine();
   inst = E->create(data);
   CHECK(inst != nullptr, "create");
-  CHECK(get("version").find("0.1.0") != std::string::npos, "version text: '%s'", get("version").c_str());
+  CHECK(get("version").find("0.1.1") != std::string::npos, "version text: '%s'", get("version").c_str());
   CHECK(get("tile_chain").find("CHAIN") == 0, "overview tile text: '%s'", get("tile_chain").c_str());
 
   // ---- empty chain is a clean pass-through with a fixed delay
@@ -154,6 +154,14 @@ int main(int argc, char** argv) {
   set("blk_1", "0");
   CHECK(get("blk_2_on") == "1", "a 0 echo does not retarget the selection");
 
+  // ---- online is dormant: it cannot be switched on, and no network job runs
+  set("src", "1");
+  CHECK(get("src").find("Online") == std::string::npos, "source stays Local when set to Online: '%s'", get("src").c_str());
+  set("signin", "1");
+  usleep(300000);
+  CHECK(get("status").find("switched off") != std::string::npos, "sign-in is switched off: '%s'", get("status").c_str());
+  set("pre_autofill", "1");
+  CHECK(get("pre_autofill").find("On") == std::string::npos && get("pre_autofill") != "1", "auto fill online stays off: '%s'", get("pre_autofill").c_str());
   // ---- Q-Links follow the view
   set("view", "3");
   CHECK(get("ql1_name") == "In Gain", "Q-Link 1 on In/Out is '%s'", get("ql1_name").c_str());

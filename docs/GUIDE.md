@@ -1,6 +1,6 @@
-# Tone3000MPC user guide
+# THING4000 user guide
 
-Tone3000MPC is an effect plugin: put it on a track whose input is your guitar, bass or any other sound.
+THING4000 is an effect plugin: put it on a track whose input is your guitar, bass or any other sound.
 
 ## Pages
 
@@ -15,13 +15,16 @@ Eight block slots (two rows of four). Tap a block to select it. LEVEL, MIX and B
 **Reorder:** select a block, tap **MOVE**, then tap the block to swap with. Only those two tiles change.
 
 ### Browse
-**SOURCE Local** lists what is in the plugin's `Tone3000MPC/tones` folder; **Online** searches TONE3000 (you must be signed in, see Setup).
-GEAR, FORMAT and SORT filter. Tap a result: Local loads it into the selected block; Online opens that tone's captures, tap a capture to
-download it and load it. **SCROLL** (or the wheel) scrolls the rows, **< PAGE / PAGE >** change page. **DELETE** then a row removes a downloaded capture.
-Captures you copy into `tones/` yourself (a `.nam` or a `.wav` IR) are listed too.
+Lists what is in the plugin's `THING4000/tones` folder: every `.nam` capture and `.wav` IR you copied there. GEAR and FORMAT filter
+(captures without a small `.json` next to them have no gear type, so leave GEAR on All). Tap a result to load it into the selected block.
+**SCROLL** (or the wheel) scrolls the rows, **< PAGE / PAGE >** change page, **REFRESH** rescans the folder after you copy files in.
+**DELETE** then a row removes that file.
+
+**Getting captures:** download `.nam` amp / pedal captures and `.wav` cab IRs on your PC from any source (for example tone3000.com),
+then copy them into `THING4000/tones` on the Force (for example with L'Cronx Manager) and tap REFRESH. THING4000 itself never uses the internet.
 
 ### In / Out
-In Gain, Out Gain, Dry/Wet, noise gate (threshold), **Calibrate** (TONE3000's input / output level matching with CAL LEVEL), **Normalize**
+In Gain, Out Gain, Dry/Wet, noise gate (threshold), **Calibrate** (input / output level matching with CAL LEVEL), **Normalize**
 (captures to a common loudness, NORM TGT), **Input** Left / Right / Sum, **Quality** Full / Lite (Lite uses the lighter size of A2 captures).
 
 ### EQ
@@ -32,17 +35,15 @@ Turn TUNER on and play one string: note, cents and Hz. MUTE silences the output 
 
 ### Presets
 **User**: SAVE NEW stores the chain under the next free name (no limit on how many); tap a name to load; OVERWRITE saves over the loaded
-one; DELETE then a name removes it. **Factory**: 48 chains (8 layouts x 6 voicings). Recalling one fills each empty slot with the matching
-top result from TONE3000 (and downloads it once), or, with AUTO FILL off or when offline, from the captures you already have.
+one; DELETE then a name removes it. **Factory**: 48 chains (8 layouts x 6 voicings). Recalling one fills each empty slot with a capture of the matching
+kind (amp, cab, pedal...) from the captures in your `tones` folder. With no captures there, the slots stay empty.
 
 ### Setup
-**SIGN IN** shows a code and a web address: open it on any phone or computer, enter the code, approve. Sign out any time.
-DSP load, the API key in use and the data folder are shown.
+DSP load, the data folder and the version are shown.
 
 ## Files
-`Tone3000MPC/` next to the plugin holds `tones/` (captures plus a small `.json` per download), `presets/`, `autofill.json`, `auth.json`
-(your sign-in; keep private) and an optional `settings.json`: `{"api_key": "t3k_pub_...", "api_domain": "www.tone3000.com"}`.
-Updating the plugin keeps this folder.
+`THING4000/` next to the plugin holds `tones/` (your captures and IRs, optionally with a small `.json` per file giving `title`, `model`, `gear`, `user`)
+and `presets/`. Updating the plugin keeps this folder.
 
 ## Limits in 0.1.0
 No oversampling, no dual mono, IRs are mono (left channel) and capped at 0.5 s, captures run at 48 kHz internally (the plugin resamples 44.1 <-> 48 kHz

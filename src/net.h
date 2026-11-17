@@ -111,7 +111,7 @@ class Net {
     setopt_(c, CURLOPT_MAXREDIRS, 6L);
     setopt_(c, CURLOPT_CONNECTTIMEOUT, 15L);
     setopt_(c, CURLOPT_NOSIGNAL, 1L);
-    setopt_(c, CURLOPT_USERAGENT, "Tone3000MPC");
+    setopt_(c, CURLOPT_USERAGENT, "THING4000");
     static const char* cas[] = {"/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt", "/etc/ssl/cert.pem"};
     for (const char* p : cas) if (FILE* f = fopen(p, "rb")) { fclose(f); setopt_(c, CURLOPT_CAINFO, p); break; }
   }

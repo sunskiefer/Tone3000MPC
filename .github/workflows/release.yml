@@ -4,7 +4,7 @@ on:
     inputs:
       tag:
         description: Release tag
-        default: v0.1.0
+        default: v0.1.1
 permissions:
   contents: write
 jobs:
@@ -17,7 +17,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
         run: |
-          ZIP=$(ls release/Tone3000MPC-*-mpc-armv7.zip | head -n1)
+          ZIP=$(ls release/THING4000-*-mpc-armv7.zip | head -n1)
           sha256sum "$ZIP"
           gh release delete "$TAG" --cleanup-tag --yes || true
-          gh release create "$TAG" "$ZIP" --target "$GITHUB_SHA" --title "Tone3000MPC ${TAG#v}" --notes-file release/NOTES-0.1.0.md --prerelease
+          gh release create "$TAG" "$ZIP" --target "$GITHUB_SHA" --title "THING4000 ${TAG#v}" --notes-file release/NOTES-${TAG#v}.md --prerelease

@@ -12,7 +12,7 @@ for v in range(8):
     n = "page_0.png" if v == 0 else "page_0_mode0-%d.png" % v
     imgs.append("data:image/png;base64," + base64.b64encode(open(os.path.join(R, "build/preview", n), "rb").read()).decode())
 data = {"conf": conf, "views": VIEWS, "imgs": imgs, "ctl": [{k: c[k] for k in ("id", "type", "line", "view", "x", "y", "w", "h") if k in c} | {"label": c.get("label", "") or c.get("get", ""), "key": c.get("key", "")} for c in ctl]}
-html = """<!doctype html><meta charset=utf-8><title>Tone3000MPC panel editor</title>
+html = """<!doctype html><meta charset=utf-8><title>THING4000 panel editor</title>
 <style>body{margin:0;background:#161616;color:#eee;font:15px sans-serif}#bar{padding:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:#222}
 button{background:#333;color:#fff;border:1px solid #666;padding:6px 12px;font-size:15px;cursor:pointer}button.on{background:#c33}
 #stage{position:relative;width:1280px;height:628px;margin:10px;background-size:100% 100%}

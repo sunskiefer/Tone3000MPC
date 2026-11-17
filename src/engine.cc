@@ -1,7 +1,7 @@
-// Tone3000MPC: NAM A2 amps, pedals and IR cabs as an effect plugin for Force / MPC OS (mpc_engine contract).
-// Engine reused from TONE3000: NeuralAmpModelerCore + the chain / calibration / normalization logic.
+// THING4000: NAM A2 amps, pedals and IR cabs as an effect plugin for Force / MPC OS (mpc_engine contract).
+// Engine reused from the open-source TONE3000 plugin: NeuralAmpModelerCore + the chain / calibration / normalization logic.
 // New here: the Force UI model (pages, Q-Links, MOVE), the FFT convolver, resampler, EQ, gate, tuner,
-// the TONE3000 API client (device-code sign-in, search, on-demand download) and the preset banks.
+// the preset banks, and an API client (device-code sign-in, search, download) that is compiled OUT unless T3K_ONLINE=1.
 #include <dirent.h>
 #include <pthread.h>
 #include <sys/stat.h>
@@ -33,9 +33,22 @@ using namespace t3k;
 
 namespace {
 
-#define T3K_VERSION "0.1.0"
+#define T3K_VERSION "0.1.1"
+// Online search / download / sign-in is DORMANT: T3K_ONLINE 0 compiles the community API key out and drops every
+// network job, so the plugin only loads captures and IRs the user copied into tones/. Build with -DT3K_ONLINE=1 to wake it.
+#ifndef T3K_ONLINE
+#define T3K_ONLINE 0
+#endif
+#if T3K_ONLINE
 static const char* kDefaultKey = "t3k_pub_Ej7NYu-huVjA5TwLPTb_7xTblnD4ghQG";
+#else
+static const char* kDefaultKey = "";
+#endif
+#if T3K_ONLINE
 static const char* kDefaultOrigin = "https://www.tone3000.com";
+#else
+static const char* kDefaultOrigin = "";
+#endif
 static const int kRate = 44100, kNamRate = 48000, kChunk = 64;
 static const int kIrMaxSamples = 24000;          // 0.5 s at 48 kHz
 static const int kDryDelay = 96;                 // dry-path delay (44.1 kHz samples) = the wet path's, measured by tools/armtest.cc (impulse test)
@@ -269,6 +282,9 @@ static std::string tones_dir(S* s) { return s->data + "/tones/"; }
 static std::string preset_dir(S* s) { return s->data + "/presets/"; }
 
 static void post_job(S* s, Job j) {
+#if !T3K_ONLINE
+  if (j.kind == J_SEARCH || j.kind == J_MODELS || j.kind == J_DOWNLOAD || j.kind == J_SIGNIN || j.kind == J_SIGNOUT) return;
+#endif
   { std::lock_guard<std::mutex> l(s->mu); s->jobs.push_back(std::move(j)); }
   s->cv.notify_one();
 }
@@ -612,7 +628,7 @@ static std::string autofill_slot(S* s, const Slot& sl, const Voice& vo, int rank
 static void run_autofill(S* s, int fidx, int gen0) {
   const Topo& tp = kTopos[fidx / 6];
   const Voice& vo = kVoices[fidx % 6];
-  bool allowNet = s->v[P_PRE_AUTOFILL] > 0.5f;
+  bool allowNet = T3K_ONLINE && s->v[P_PRE_AUTOFILL] > 0.5f;
   for (int i = 0; i < tp.n && !s->quit; i++) {
     set_status(s, "Filling slot " + std::to_string(i + 1) + " of " + std::to_string(tp.n));
     std::string f = autofill_slot(s, tp.s[i], vo, vo.rank + tp.s[i].rank_off, allowNet);
@@ -639,6 +655,7 @@ void worker_main(S* s) {
     switch (j.kind) {
       case J_LOAD: run_load(s, j); break;
       case J_SCAN: scan_local(s); scan_presets(s); break;
+#if T3K_ONLINE
       case J_SEARCH: {
         std::vector<Entry> res; int pages = 1; std::string err;
         set_status(s, "Searching...");
@@ -666,6 +683,7 @@ void worker_main(S* s) {
         s->tok = S::Tokens(); s->signed_in = false; save_tokens(s);
         std::lock_guard<std::mutex> l(s->mu); s->auth_info = "Signed out"; s->auth_code.clear(); s->rev++;
         break; }
+#endif
       case J_AUTOFILL: run_autofill(s, j.a, j.b); break;
       default: break;
     }
@@ -1103,6 +1121,9 @@ static void display(S* s, int p, char* buf, int n) {
 
 static void set_control(S* s, int p, float x) {
   x = clampf(x, P_MIN[p], P_MAX[p]);
+#if !T3K_ONLINE
+  if (p == P_SRC || p == P_PRE_AUTOFILL) x = 0;                 // dormant: local files only
+#endif
   if (P_NOPTS[p] || P_INT[p]) x = roundf(x);
   switch (p) {
     case P_B_BYPASS: s->blk[s->sel].bypass = x > 0.5f; s->dirty = true; s->bump(); return;
@@ -1285,8 +1306,12 @@ static void tap_trigger(S* s, int p) {
         if (user) save_user_preset(s, s->cur_preset); else set_status(s, "Load a user preset first to overwrite it");
       } else set_status(s, "Load a user preset first to overwrite it");
       break;
+#if !T3K_ONLINE
+    case P_SIGNIN: case P_SIGNOUT: set_status(s, "Online is switched off: copy captures into the tones folder"); break;
+#else
     case P_SIGNIN: { Job j; j.kind = J_SIGNIN; post_job(s, j); { std::lock_guard<std::mutex> l(s->mu); s->auth_info = "Contacting TONE3000..."; } s->bump(); break; }
     case P_SIGNOUT: s->cancel_auth = true; { Job j; j.kind = J_SIGNOUT; post_job(s, j); } break;
+#endif
     default: break;
   }
   s->bump();
@@ -1368,7 +1393,7 @@ static int text_param(S* s, int p, char* buf, int n) {
     case P_DSP_LOAD: { char t[32]; snprintf(t, sizeof t, "DSP %d%%", (int)lround(s->load)); return put(t); }
     case P_FOLDER: return put(s->data);
     case P_KEY_INFO: return put(s->key == kDefaultKey ? "Community key" : "Custom key");
-    case P_VERSION: return put(std::string("Tone3000MPC ") + T3K_VERSION);
+    case P_VERSION: return put(std::string("THING4000 ") + T3K_VERSION);
     case P_TILE_CHAIN: { int nn = 0, ni = 0; for (auto& b : s->blk) { if (b.type == 1) nn++; if (b.type == 2) ni++; }
       char t[64]; snprintf(t, sizeof t, "CHAIN  %d NAM  %d IR", nn, ni); return put(t); }
     case P_TILE_BROWSE: { char t[64]; snprintf(t, sizeof t, "BROWSE  %d saved", (int)s->local.size()); return put(t); }
@@ -1407,7 +1432,7 @@ static bool is_trigger(int p) {
 // =================================================================================================================
 void* create(const char* dir) {
   S* s = new S();
-  s->data = (dir && *dir) ? dir : "/sdcard/Tone3000MPC";
+  s->data = (dir && *dir) ? dir : "/sdcard/THING4000";
   while (s->data.size() > 1 && s->data.back() == '/') s->data.pop_back();
   mkdirs(s->data); mkdirs(s->data + "/tones"); mkdirs(s->data + "/presets");
   s->origin = kDefaultOrigin; s->key = kDefaultKey;
